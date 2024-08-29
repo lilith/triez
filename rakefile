@@ -1,5 +1,8 @@
 require "rbconfig"
 require "fileutils"
+require 'rake/testtask'
+require 'rubocop/rake_task'
+
 include FileUtils
 
 so_file = "ext/triez.#{RbConfig::CONFIG['DLEXT']}"
@@ -28,6 +31,7 @@ file 'hat-trie' do
 end
 
 desc "run tests"
+
 task :default => so_file do
   sh 'ruby', "test/triez_test.rb"
 end
@@ -52,3 +56,12 @@ task :clean do
     rm Dir.glob 'build/*.{o,a}'
   end
 end
+
+
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+  t.test_files = FileList['test/**/*_test.rb']
+  t.verbose = true
+end
+
+RuboCop::RakeTask.new

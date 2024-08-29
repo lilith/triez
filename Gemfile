@@ -1,5 +1,10 @@
-# only for travis-ci
 source 'https://rubygems.org'
 
-gem 'rake'
-gem 'test'
+gemspec
+
+group :development, :test do
+  gem 'rake'
+  gem 'rubocop'
+  gem 'solargraph'
+  gem 'test-unit'
+end
