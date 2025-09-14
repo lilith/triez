@@ -11,6 +11,24 @@ static VALUE hat_class;
 static rb_encoding* u8_enc;
 static rb_encoding* bin_enc;
 
+// Forward declarations
+static void hat_mark(void* p_ht);
+static void hat_free(void* p);
+
+// TypedData definitions for Ruby 3.x compatibility
+static const rb_data_type_t hat_trie_type = {
+    "HatTrie",
+    {
+        hat_mark,
+        hat_free,
+        NULL,  // dsize
+        NULL,  // dcompact
+        NULL,  // reserved
+    },
+    0, 0,
+    RUBY_TYPED_FREE_IMMEDIATELY,
+};
+
 static inline VALUE unify_key(VALUE key) {
     rb_encoding* enc = rb_enc_get(key);
     if (enc != u8_enc && enc != bin_enc) {
@@ -73,20 +91,20 @@ static void hat_free(void* p) {
 
 static VALUE hat_alloc(VALUE self) {
     HatTrie* ht = new HatTrie();
-    return Data_Wrap_Struct(hat_class, hat_mark, hat_free, ht);
+    return TypedData_Wrap_Struct(hat_class, &hat_trie_type, ht);
 }
 
 #define PRE_HAT\
     hattrie_t* p;\
     HatTrie* ht;\
-    Data_Get_Struct(self, HatTrie, ht);\
+    TypedData_Get_Struct(self, HatTrie, &hat_trie_type, ht);\
     p = ht->p;\
     Check_Type(key, T_STRING);\
     key = unify_key(key);
 
 static VALUE hat_set_type(VALUE self, VALUE obj_value, VALUE default_value) {
     HatTrie* ht;
-    Data_Get_Struct(self, HatTrie, ht);
+    TypedData_Get_Struct(self, HatTrie, &hat_trie_type, ht);
     if (ht->initialized) {
         rb_raise(rb_eRuntimeError, "Already initialized");
         return self;
@@ -99,13 +117,13 @@ static VALUE hat_set_type(VALUE self, VALUE obj_value, VALUE default_value) {
 
 static VALUE hat_value_type(VALUE self) {
     HatTrie* ht;
-    Data_Get_Struct(self, HatTrie, ht);
+    TypedData_Get_Struct(self, HatTrie, &hat_trie_type, ht);
     return ht->obj_value ? ID2SYM(rb_intern("object")) : ID2SYM(rb_intern("int64"));
 }
 
 static VALUE hat_size(VALUE self) {
     HatTrie* ht;
-    Data_Get_Struct(self, HatTrie, ht);
+    TypedData_Get_Struct(self, HatTrie, &hat_trie_type, ht);
     return ULL2NUM(hattrie_size(ht->p));
 }
 
@@ -172,7 +190,7 @@ static VALUE hat_change_all(VALUE self, VALUE type, VALUE key) {
 
 static VALUE hat_append(VALUE self, VALUE key) {
     HatTrie* ht;
-    Data_Get_Struct(self, HatTrie, ht);
+    TypedData_Get_Struct(self, HatTrie, &hat_trie_type, ht);
     return hat_set(self, key, ht->default_value);
 }
 
