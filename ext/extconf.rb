@@ -41,5 +41,6 @@ File.open 'Makefile', 'a' do |f|
     else
       "rcs"
     end
-  f.puts "\tmkdir -p build && cd build && $(CC) -O3 -std=c99 -Wall -pedantic -fPIC -c -I.. ../hat-trie/*.c && $(AR) #{ar_opt} libtries.a *.o"
+  # Use gcc for C code compilation, not g++
+  f.puts "\tmkdir -p build && cd build && gcc -O3 -std=c99 -Wall -pedantic -fPIC -c -I.. ../hat-trie/*.c && $(AR) #{ar_opt} libtries.a *.o"
 end

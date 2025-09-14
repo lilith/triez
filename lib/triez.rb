@@ -38,7 +38,7 @@ class Triez
   end
 
   def walk s, &p
-    _internal_walk(s).each &p
+    _internal_walk(s).each(&p)
   end
 
   def search_with_prefix prefix, opts={}, &p

@@ -12,6 +12,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.extensions = ["ext/extconf.rb"]
   s.required_rubygems_version = ">= 2.0.0" # or a more recent version
-  s.has_rdoc = false
 
 end

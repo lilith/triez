@@ -7,4 +7,5 @@ group :development, :test do
   gem 'rubocop'
   gem 'solargraph'
   gem 'test-unit'
+  gem 'rubocop-rake'
 end
