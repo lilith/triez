@@ -1,4 +1,8 @@
-require_relative "../ext/triez"
+begin
+  require_relative "../ext/triez"
+rescue LoadError
+  require "triez.so"
+end
 
 class Triez
   VERSION = '1.0.7'

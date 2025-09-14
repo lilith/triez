@@ -5,7 +5,7 @@ $CFLAGS << ' -Ihat-trie'
 $CPPFLAGS << ' -Ihat-trie'
 # Force C++ linking since we have C++ source files
 CONFIG['LDSHARED'] = CONFIG['LDSHARED'].gsub(/gcc/, 'g++')
-CONFIG['CC'] = 'g++'
+# Keep CC as gcc for C files, we'll handle C++ separately
 
 # Ensure hat-trie sources are available (they should be vendored)
 unless File.exist?('hat-trie/hat-trie.h')
@@ -27,20 +27,22 @@ end
 
 create_makefile 'triez'
 
-# respect header changes
-headers = Dir.glob('*.{hpp,h}').join ' '
+# Add custom build rules for hat-trie
 File.open 'Makefile', 'a' do |f|
   f.puts
-  f.puts "$(OBJS): #{headers}"
-  f.puts "$(DLLIB): build/libtries.a $(OBJS)"
-  f.puts "\t$(LDSHARED) -o $@ $(OBJS) build/libtries.a $(LDFLAGS) $(LOCAL_LIBS) $(LIBS)"
-  f.puts "build/libtries.a:"
-  ar_opt = \
-    if defined? CONFIG and CONFIG['AR'] =~ /libtool/
-      "-o" # libtool -static -o
-    else
-      "rcs"
-    end
-  # Use gcc for C code compilation, not g++
-  f.puts "\tmkdir -p build && cd build && gcc -O3 -std=c99 -Wall -pedantic -fPIC -c -I.. ../hat-trie/*.c && $(AR) #{ar_opt} libtries.a *.o"
+  f.puts "# Hat-trie library build"
+  f.puts "HATTRIE_OBJS = hat-trie/ahtable.o hat-trie/hat-trie.o hat-trie/misc.o hat-trie/murmurhash3.o"
+  f.puts
+  f.puts "$(DLLIB): $(OBJS) $(HATTRIE_OBJS)"
+  f.puts "\tg++ -shared -o $@ $(OBJS) $(HATTRIE_OBJS) $(LDFLAGS) $(LOCAL_LIBS) $(LIBS)"
+  f.puts
+  f.puts "hat-trie/%.o: hat-trie/%.c"
+  f.puts "\tgcc $(CFLAGS) -std=c99 -fPIC -c $< -o $@"
+  f.puts
+  f.puts "triez.o: triez.cc"
+  f.puts "\tg++ $(CPPFLAGS) $(INCFLAGS) -fPIC -c $< -o $@"
+  f.puts
+  f.puts "clean: clean-hattrie"
+  f.puts "clean-hattrie:"
+  f.puts "\t-$(RM) $(HATTRIE_OBJS)"
 end
