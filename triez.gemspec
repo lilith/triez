@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = "fast, efficient, unicode aware HAT trie with prefix / suffix support"
   s.description = "fast, efficient, unicode aware HAT trie with prefix / suffix support."
-  s.required_ruby_version = ">= 2.0.0"  # Update the minimum Ruby version
+  s.required_ruby_version = ">= 2.7.0"  # Update for Ruby 3.x compatibility
   s.license = "MIT" # or whatever license the project uses
   s.files = Dir.glob("{copying,changes,readme.md,{lib,test}/*.rb,ext/*.{c,cc,h,rb},ext/hat-trie/*}")
   s.require_paths = ["lib"]

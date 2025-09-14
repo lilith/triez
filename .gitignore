@@ -1,4 +1,5 @@
-/hat-trie
+# Keep hat-trie sources in repo for git/folder references
+# /hat-trie
 /marisa-trie
 *.o
 *.a
